@@ -1,0 +1,13 @@
+id,name,contains_nuts,cost_price_in_pence
+1,Vanilla,true,45
+2,Chocolate,Y,65
+3,Strawberry,no,55
+4,Pistachio,1,95
+5,Salted Caramel,FALSE,60
+6,Mint Choc Chip,yes,75
+7,Cookie Dough,0,80
+8,Almond,True,100
+9,Hazelnut,YES,90
+10,Lavender,N,50
+11,Bubblegum,0,40
+12,Lemon Sorbet,false,35
