@@ -1,0 +1,13 @@
+flavour_id,name,contains_nuts,cost_price_in_pence
+1,Vanilla,True,45
+2,Chocolate,True,65
+3,Strawberry,False,55
+4,Pistachio,True,95
+5,Salted Caramel,False,60
+6,Mint Choc Chip,True,75
+7,Cookie Dough,False,80
+8,Almond,True,100
+9,Hazelnut,True,90
+10,Lavender,False,50
+11,Bubblegum,False,40
+12,Lemon Sorbet,False,35
