@@ -1,4 +1,10 @@
+from pathlib import Path
+
 import pandas as pd
+import psycopg2
+
+import logging
+logger = logging.getLogger(__name__)
 
 def load_dim_store(cursor, dim_store_df):
     '''Uses cursor connection to insert cleaned store data into db table'''
@@ -102,3 +108,69 @@ def load_fact_sales(cursor, fact_sales_df):
             ),
         )
 
+def run_load(
+    star_schema_dir="data/star_schema",
+    dbname="scoops_sales",
+):
+    star_schema_dir = Path(star_schema_dir)
+
+    dim_date_df = pd.read_csv(
+        star_schema_dir / "dim_date.csv",
+        parse_dates=["full_date"],
+    )
+
+    dim_store_df = pd.read_csv(
+        star_schema_dir / "dim_store.csv"
+    )
+
+    dim_flavour_df = pd.read_csv(
+        star_schema_dir / "dim_flavour.csv"
+    )
+
+    fact_sales_df = pd.read_csv(
+        star_schema_dir / "fact_sales.csv"
+    )
+
+    connection = psycopg2.connect(
+        dbname=dbname
+    )
+
+    cursor = connection.cursor()
+
+    try:
+        load_dim_date(
+            cursor,
+            dim_date_df,
+        )
+
+        load_dim_store(
+            cursor,
+            dim_store_df,
+        )
+
+        load_dim_flavour(
+            cursor,
+            dim_flavour_df,
+        )
+
+        load_fact_sales(
+            cursor,
+            fact_sales_df,
+        )
+
+        connection.commit()
+        logger.info(
+            "Loaded %s dates, %s stores, %s flavours and %s sales",
+            len(dim_date_df),
+            len(dim_store_df),
+            len(dim_flavour_df),
+            len(fact_sales_df),
+        )
+
+    except Exception:
+        connection.rollback()
+        raise
+
+    finally:
+        cursor.close()
+        connection.close()
