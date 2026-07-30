@@ -1,6 +1,9 @@
 import pandas as pd
 from pathlib import Path
 
+import logging
+logger = logging.getLogger(__name__)
+
 
 def build_dim_flavour(flavours_df):
     dim_flavour = flavours_df.rename(
@@ -180,7 +183,7 @@ def run_model(
         index=False,
     )
 
-    print("Star schema files created successfully.")
+    logger.info("Star schema files created successfully")
 
 if __name__ == "__main__":
     run_model()

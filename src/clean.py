@@ -1,4 +1,9 @@
+from pathlib import Path
+import logging
+
 import pandas as pd
+
+logger = logging.getLogger(__name__)
 
 def clean_flavours(raw_df):
     """
@@ -133,3 +138,83 @@ def clean_stores(raw_df):
         raise ValueError("Longitude must be between -180 and 180.")
 
     return cleaned_df
+
+def run_clean(
+    flavours_raw_df,
+    sales_raw_df,
+    stores_raw_df,
+    cleaned_data_dir="data/cleaned_data",
+):
+    """
+    Run the complete clean stage.
+
+    Cleans the raw DataFrames, writes cleaned CSV checkpoints,
+    logs row counts, and returns the cleaned DataFrames.
+    """
+    cleaned_data_dir = Path(cleaned_data_dir)
+
+    cleaned_data_dir.mkdir(
+        parents=True,
+        exist_ok=True,
+    )
+
+    flavours_rows_in = len(flavours_raw_df)
+    sales_rows_in = len(sales_raw_df)
+    stores_rows_in = len(stores_raw_df)
+
+    flavours_clean_df = clean_flavours(
+        flavours_raw_df
+    )
+
+    sales_clean_df = clean_sales(
+        sales_raw_df
+    )
+
+    stores_clean_df = clean_stores(
+        stores_raw_df
+    )
+
+    flavours_clean_df.to_csv(
+        cleaned_data_dir / "flavours.csv",
+        index=False,
+    )
+
+    sales_clean_df.to_csv(
+        cleaned_data_dir / "sales.csv",
+        index=False,
+    )
+
+    stores_clean_df.to_csv(
+        cleaned_data_dir / "stores.csv",
+        index=False,
+    )
+
+    logger.info(
+        "Flavours: %s rows in, %s rows out, "
+        "%s rows dropped during cleaning",
+        flavours_rows_in,
+        len(flavours_clean_df),
+        flavours_rows_in - len(flavours_clean_df),
+    )
+
+    logger.info(
+        "Sales: %s rows in, %s rows out, "
+        "%s rows dropped during cleaning",
+        sales_rows_in,
+        len(sales_clean_df),
+        sales_rows_in - len(sales_clean_df),
+    )
+
+    logger.info(
+        "Stores: %s rows in, %s rows out, "
+        "%s rows dropped during cleaning",
+        stores_rows_in,
+        len(stores_clean_df),
+        stores_rows_in - len(stores_clean_df),
+    )
+
+    return (
+        flavours_clean_df,
+        sales_clean_df,
+        stores_clean_df,
+    )
