@@ -9,7 +9,8 @@ setup-test-db:
 run:
 	python main.py
 
-pipeline: setup-db run
+pipeline: setup-db
+	python main.py
 
 test: setup-test-db
-	pytest -q
+	python -m pytest -q
