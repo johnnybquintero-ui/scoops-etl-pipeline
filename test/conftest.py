@@ -1,5 +1,6 @@
 import pandas as pd
 import pytest
+import psycopg2
 
 @pytest.fixture
 def raw_flavours_df():
@@ -65,3 +66,15 @@ def raw_stores_df():
         "latitude": [52.2053, 52.6085, 52.6309, 52.6309, 52.6309],
         "longitude": [0.1218, 1.7302, 1.2974, 1.2974, 1.2974],
     })
+
+
+@pytest.fixture
+def test_connection():
+    connection = psycopg2.connect(
+        dbname="scoops_sales_test"
+    )
+
+    yield connection
+
+    connection.rollback()
+    connection.close()
