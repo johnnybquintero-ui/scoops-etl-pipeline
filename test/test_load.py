@@ -2,10 +2,9 @@ import pandas as pd
 import pytest
 from src.load import load_dim_store, load_dim_flavour, load_dim_date, load_fact_sales
 
+
 def test_load_dim_store_inserts_all_rows(test_connection):
-    stores_df = pd.read_csv(
-        "data/star_schema/dim_store.csv"
-    )
+    stores_df = pd.read_csv("data/star_schema/dim_store.csv")
 
     with test_connection.cursor() as cursor:
 
@@ -22,10 +21,9 @@ def test_load_dim_store_inserts_all_rows(test_connection):
 
     assert actual == expected
 
+
 def test_load_dim_store_inserts_correct_values(test_connection):
-    stores_df = pd.read_csv(
-        "data/star_schema/dim_store.csv"
-    )
+    stores_df = pd.read_csv("data/star_schema/dim_store.csv")
 
     with test_connection.cursor() as cursor:
         load_dim_store(cursor, stores_df)
@@ -46,9 +44,7 @@ def test_load_dim_store_inserts_correct_values(test_connection):
 
         actual = cursor.fetchone()
 
-    expected = stores_df.loc[
-        stores_df["store_id"] == "S001"
-    ].iloc[0]
+    expected = stores_df.loc[stores_df["store_id"] == "S001"].iloc[0]
 
     assert actual[0] == expected["store_id"]
     assert actual[1] == expected["store_name"]
@@ -56,11 +52,10 @@ def test_load_dim_store_inserts_correct_values(test_connection):
     assert float(actual[3]) == pytest.approx(expected["latitude"])
     assert float(actual[4]) == pytest.approx(expected["longitude"])
 
+
 def test_load_dim_flavour_inserts_all_rows(test_connection):
-    flavours_df = pd.read_csv(
-            "data/star_schema/dim_flavour.csv"
-        )
-    
+    flavours_df = pd.read_csv("data/star_schema/dim_flavour.csv")
+
     with test_connection.cursor() as cursor:
 
         load_dim_flavour(cursor, flavours_df)
@@ -76,16 +71,16 @@ def test_load_dim_flavour_inserts_all_rows(test_connection):
 
     assert actual == expected
 
+
 def test_load_dim_flavour_inserts_correct_values(test_connection):
-    flavours_df = pd.read_csv(
-            "data/star_schema/dim_flavour.csv"
-        )
-    
+    flavours_df = pd.read_csv("data/star_schema/dim_flavour.csv")
+
     with test_connection.cursor() as cursor:
 
         load_dim_flavour(cursor, flavours_df)
 
-        cursor.execute("""
+        cursor.execute(
+            """
             SELECT
                 flavour_id,
                 name,
@@ -95,17 +90,16 @@ def test_load_dim_flavour_inserts_correct_values(test_connection):
             WHERE flavour_id = %s;
             """,
             (1,),
-            )
+        )
         actual = cursor.fetchone()
-        
-    expected = flavours_df.loc[
-        flavours_df["flavour_id"] == 1
-    ].iloc[0]
+
+    expected = flavours_df.loc[flavours_df["flavour_id"] == 1].iloc[0]
 
     assert actual[0] == expected["flavour_id"]
     assert actual[1] == expected["name"]
     assert actual[2] == expected["contains_nuts"]
     assert actual[3] == expected["cost_price_in_pence"]
+
 
 def test_load_dim_date_inserts_all_rows(test_connection):
     dates_df = pd.read_csv(
@@ -116,16 +110,15 @@ def test_load_dim_date_inserts_all_rows(test_connection):
     with test_connection.cursor() as cursor:
         load_dim_date(cursor, dates_df)
 
-        cursor.execute(
-            """
+        cursor.execute("""
             SELECT COUNT(*)
             FROM dim_date;
-            """
-        )
+            """)
         actual = cursor.fetchone()[0]
 
     expected = len(dates_df)
     assert actual == expected
+
 
 def test_load_dim_date_inserts_correct_values(test_connection):
     # parse_dates converts full_date from a string into a pandas Timestamp.
@@ -163,7 +156,6 @@ def test_load_dim_date_inserts_correct_values(test_connection):
             (date_id,),
         )
 
-
         actual = cursor.fetchone()
 
     # Check that a matching database row was found.
@@ -184,10 +176,9 @@ def test_load_dim_date_inserts_correct_values(test_connection):
     assert actual[7] == expected["day_of_week"]
     assert actual[8] == expected["is_weekend"]
 
+
 def test_load_fact_sales_inserts_all_rows(test_connection):
-    fact_sales_df = pd.read_csv(
-        "data/star_schema/fact_sales.csv"
-    )
+    fact_sales_df = pd.read_csv("data/star_schema/fact_sales.csv")
 
     # Load the dimension DataFrames as well,
     # because fact_sales references them with foreign keys.
@@ -196,13 +187,9 @@ def test_load_fact_sales_inserts_all_rows(test_connection):
         parse_dates=["full_date"],
     )
 
-    stores_df = pd.read_csv(
-        "data/star_schema/dim_store.csv"
-    )
+    stores_df = pd.read_csv("data/star_schema/dim_store.csv")
 
-    flavours_df = pd.read_csv(
-        "data/star_schema/dim_flavour.csv"
-    )
+    flavours_df = pd.read_csv("data/star_schema/dim_flavour.csv")
 
     with test_connection.cursor() as cursor:
         load_dim_date(cursor, dates_df)
@@ -211,12 +198,10 @@ def test_load_fact_sales_inserts_all_rows(test_connection):
 
         load_fact_sales(cursor, fact_sales_df)
 
-        cursor.execute(
-            """
+        cursor.execute("""
             SELECT COUNT(*)
             FROM fact_sales;
-            """
-        )
+            """)
 
         actual = cursor.fetchone()[0]
 
@@ -224,23 +209,18 @@ def test_load_fact_sales_inserts_all_rows(test_connection):
 
     assert actual == expected
 
+
 def test_load_fact_sales_inserts_correct_values(test_connection):
     dates_df = pd.read_csv(
         "data/star_schema/dim_date.csv",
         parse_dates=["full_date"],
     )
 
-    stores_df = pd.read_csv(
-        "data/star_schema/dim_store.csv"
-    )
+    stores_df = pd.read_csv("data/star_schema/dim_store.csv")
 
-    flavours_df = pd.read_csv(
-        "data/star_schema/dim_flavour.csv"
-    )
+    flavours_df = pd.read_csv("data/star_schema/dim_flavour.csv")
 
-    fact_sales_df = pd.read_csv(
-        "data/star_schema/fact_sales.csv"
-    )
+    fact_sales_df = pd.read_csv("data/star_schema/fact_sales.csv")
 
     # Pick a row that definitely exists.
     expected = fact_sales_df.iloc[0]

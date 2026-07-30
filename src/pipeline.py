@@ -5,7 +5,6 @@ from src.extract import run_extraction
 from src.load import run_load
 from src.model import run_model
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -17,9 +16,7 @@ def run_pipeline(
 ):
     logger.info("Starting extract stage")
 
-    flavours_raw_df, sales_raw_df, stores_raw_df = (
-        run_extraction(raw_data_dir)
-    )
+    flavours_raw_df, sales_raw_df, stores_raw_df = run_extraction(raw_data_dir)
 
     logger.info("Starting clean stage")
 

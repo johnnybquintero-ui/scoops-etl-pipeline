@@ -4,10 +4,12 @@ import pandas as pd
 import psycopg2
 
 import logging
+
 logger = logging.getLogger(__name__)
 
+
 def load_dim_store(cursor, dim_store_df):
-    '''Uses cursor connection to insert cleaned store data into db table'''
+    """Uses cursor connection to insert cleaned store data into db table"""
 
     for row in dim_store_df.itertuples(index=False):
         cursor.execute(
@@ -21,17 +23,12 @@ def load_dim_store(cursor, dim_store_df):
             )
             VALUES (%s, %s, %s, %s, %s);
             """,
-            (
-                row.store_id,
-                row.store_name,
-                row.region,
-                row.latitude,
-                row.longitude
-            ),
+            (row.store_id, row.store_name, row.region, row.latitude, row.longitude),
         )
 
+
 def load_dim_flavour(cursor, dim_flavour_df):
-    '''Use cursor connection to insert cleaned flavour data into db table'''
+    """Use cursor connection to insert cleaned flavour data into db table"""
 
     for row in dim_flavour_df.itertuples(index=False):
         cursor.execute(
@@ -44,13 +41,9 @@ def load_dim_flavour(cursor, dim_flavour_df):
                 )
                 VALUES(%s,%s,%s,%s);
                 """,
-                (
-                    row.flavour_id,
-                    row.name,
-                    row.contains_nuts,
-                    row.cost_price_in_pence
-                ),
-            )
+            (row.flavour_id, row.name, row.contains_nuts, row.cost_price_in_pence),
+        )
+
 
 def load_dim_date(cursor, dim_date_df):
     """Use cursor connection to insert date dimension data into the database."""
@@ -84,6 +77,7 @@ def load_dim_date(cursor, dim_date_df):
             ),
         )
 
+
 def load_fact_sales(cursor, fact_sales_df):
     """Insert modelled sales data into the fact_sales table."""
 
@@ -108,6 +102,7 @@ def load_fact_sales(cursor, fact_sales_df):
             ),
         )
 
+
 def run_load(
     star_schema_dir="data/star_schema",
     dbname="scoops_sales",
@@ -119,21 +114,13 @@ def run_load(
         parse_dates=["full_date"],
     )
 
-    dim_store_df = pd.read_csv(
-        star_schema_dir / "dim_store.csv"
-    )
+    dim_store_df = pd.read_csv(star_schema_dir / "dim_store.csv")
 
-    dim_flavour_df = pd.read_csv(
-        star_schema_dir / "dim_flavour.csv"
-    )
+    dim_flavour_df = pd.read_csv(star_schema_dir / "dim_flavour.csv")
 
-    fact_sales_df = pd.read_csv(
-        star_schema_dir / "fact_sales.csv"
-    )
+    fact_sales_df = pd.read_csv(star_schema_dir / "fact_sales.csv")
 
-    connection = psycopg2.connect(
-        dbname=dbname
-    )
+    connection = psycopg2.connect(dbname=dbname)
 
     cursor = connection.cursor()
 

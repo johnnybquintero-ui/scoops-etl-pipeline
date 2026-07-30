@@ -2,15 +2,12 @@ import pandas as pd
 from pathlib import Path
 
 import logging
+
 logger = logging.getLogger(__name__)
 
 
 def build_dim_flavour(flavours_df):
-    dim_flavour = flavours_df.rename(
-        columns={
-            "id": "flavour_id"
-        }
-    )
+    dim_flavour = flavours_df.rename(columns={"id": "flavour_id"})
 
     return dim_flavour[
         [
@@ -41,17 +38,9 @@ def build_dim_date(start_date, end_date):
         freq="D",
     )
 
-    dim_date = pd.DataFrame(
-        {
-            "full_date": date_range
-        }
-    )
+    dim_date = pd.DataFrame({"full_date": date_range})
 
-    dim_date["date_id"] = (
-        dim_date["full_date"]
-        .dt.strftime("%Y%m%d")
-        .astype("int64")
-    )
+    dim_date["date_id"] = dim_date["full_date"].dt.strftime("%Y%m%d").astype("int64")
 
     dim_date["day"] = dim_date["full_date"].dt.day
     dim_date["month"] = dim_date["full_date"].dt.month
@@ -59,9 +48,7 @@ def build_dim_date(start_date, end_date):
     dim_date["quarter"] = dim_date["full_date"].dt.quarter
     dim_date["year"] = dim_date["full_date"].dt.year
     dim_date["day_of_week"] = dim_date["full_date"].dt.day_name()
-    dim_date["is_weekend"] = (
-        dim_date["full_date"].dt.dayofweek >= 5
-    )
+    dim_date["is_weekend"] = dim_date["full_date"].dt.dayofweek >= 5
 
     return dim_date[
         [
@@ -120,17 +107,11 @@ def run_model(
         exist_ok=True,
     )
 
-    flavours_df = pd.read_csv(
-        cleaned_data_dir / "flavours.csv"
-    )
+    flavours_df = pd.read_csv(cleaned_data_dir / "flavours.csv")
 
-    stores_df = pd.read_csv(
-        cleaned_data_dir / "stores.csv"
-    )
+    stores_df = pd.read_csv(cleaned_data_dir / "stores.csv")
 
-    sales_df = pd.read_csv(
-        cleaned_data_dir / "sales.csv"
-    )
+    sales_df = pd.read_csv(cleaned_data_dir / "sales.csv")
 
     # Prepare the sales dates once for both dim_date and fact_sales
     sales_df["timestamp"] = pd.to_datetime(
@@ -140,18 +121,11 @@ def run_model(
         errors="raise",
     )
 
-    sales_df["full_date"] = (
-        sales_df["timestamp"]
-        .dt.normalize()
-    )
+    sales_df["full_date"] = sales_df["timestamp"].dt.normalize()
 
-    dim_flavour = build_dim_flavour(
-        flavours_df
-    )
+    dim_flavour = build_dim_flavour(flavours_df)
 
-    dim_store = build_dim_store(
-        stores_df
-    )
+    dim_store = build_dim_store(stores_df)
 
     dim_date = build_dim_date(
         start_date=sales_df["full_date"].min(),
@@ -184,6 +158,7 @@ def run_model(
     )
 
     logger.info("Star schema files created successfully")
+
 
 if __name__ == "__main__":
     run_model()
