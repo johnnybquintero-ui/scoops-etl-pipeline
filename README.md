@@ -2,8 +2,6 @@
 
 A Python ETL pipeline that processes weekly sales data for Scoops, a fictional UK ice cream company.
 
-```
-
 ## Pipeline stages
 
 ### Extract
